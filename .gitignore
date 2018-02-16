@@ -60,3 +60,5 @@ target/
 # ignore the data directory
 data/
 
+
+*.png
