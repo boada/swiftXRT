@@ -173,7 +173,7 @@ def put_contours(name):
     cat = fits.getdata('./data/{}/{}xrt.fits'.format(name, name))
 
     exp_time = cat['xrt_exposure'].sum()
-    text = 'exp time: {}s'.format(exp_time)
+    text = 'exp time: {:.2}s'.format(exp_time)
 
     gc = aplpy.FITSFigure('./data/{}/{}_PS1stack_i.fits'.format(name, name))
     gc.show_rgb('./data/{}/{}irg.tiff'.format(name, name))
@@ -262,7 +262,15 @@ def source_detec(name):
         f.writelines('detect/snr_threshold=3/'
                 'fitsdet={{./data/{}/{}_img_50-200_bl8.det.fits}}\n'.format(name,
                                                                         name))
+        f.writelines('detect/snr_threshold=3/'
+                'filedet={{./data/{}/{}_img_50-200_bl8.det}}\n'.format(name,
+                                                                        name))
         f.writelines('exit\n')
+
+    # remove old file if it exists
+    if os.path.isfile('./data/{}/{}_img_50-200_bl8.det.fits'.format(name,
+                                                                    name)):
+        os.remove('./data/{}/{}_img_50-200_bl8.det.fits'.format(name, name))
 
     # call xselect
     os.system('ximage < ./data/{}/{}_ximg.in'.format(name, name))
