@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from astropy.io import fits
 from astropy.convolution import convolve
 from astropy.convolution import Gaussian2DKernel
+import pandas as pd
+
 
 def combineXRT(name):
     # find the x-ray files
@@ -270,14 +272,18 @@ def source_detec(name):
 
 if __name__ == "__main__":
     # get file data
-    data = np.genfromtxt('./PSZcatalogs/PSZ2_unconfirmed_catalog - proc2.csv',
-            delimiter=',', names=True, dtype=None)
+#    data = np.genfromtxt('./PSZcatalogs/PSZ2_unconfirmed_catalog - current.csv',
+#            delimiter=',', names=True, dtype=None)
 
-    for name in data['Name']:
-        print(name.decode())
-        #combineXRT(name.decode())
-        source_detec(name.decode())
-        #mk_contours(name.decode())
-        mk_contours2(name.decode())
-        #put_contours(name.decode())
-        put_contours2(name.decode())
+    data = pd.read_csv('./PSZ_unconfirmed.csv')
+
+    for name in data['NAME']:
+        print(name)
+
+        name = name.replace(' ', '_')
+        #combineXRT(name)
+        #source_detec(name)
+        #mk_contours(name)
+        #mk_contours2(name)
+        put_contours(name)
+        #put_contours2(name)

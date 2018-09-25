@@ -3,6 +3,7 @@ import numpy as np
 from time import sleep
 from astropy.io import fits
 from astropy.time import Time
+import pandas as pd
 
 def get_catalog(ra, dec, target, table='swiftmastr', oformat='fits'):
 
@@ -49,18 +50,24 @@ def get_files(target):
 
 
 # get file data
-data = np.genfromtxt('./PSZcatalogs/PSZ2_unconfirmed_catalog - Master.csv',
+data = np.genfromtxt('./PSZcatalogs/PSZ2_unconfirmed_catalog - current.csv',
            delimiter=',', names=True, dtype=None)
 
+data = pd.read_csv('./PSZ_unconfirmed.csv')
+
 for i, (ra, dec,
-        name) in enumerate(zip(data['RA'], data['DEC'], data['Name'])):
-    print(data['Name'][i])
+        name) in enumerate(zip(data['RA'], data['DEC'], data['NAME'])):
+    #print(data['Name'][i])
+
+    print(name)
+
+    name = name.replace(' ', '_')
 
     #name = ''.join(e for e in name.decode() if e.isalnum())
-    if not os.path.isdir('./data/{}'.format(name.decode())):
-        os.makedirs('./data/{}'.format(name.decode()))
+    if not os.path.isdir('./data/{}'.format(name)):
+        os.makedirs('./data/{}'.format(name))
 
-    get_catalog(ra, dec, '{}'.format(name.decode()))
-    get_files('{}'.format(name.decode()))
+    get_catalog(ra, dec, '{}'.format(name))
+    get_files('{}'.format(name))
 
     sleep(1)
