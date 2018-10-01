@@ -63,6 +63,38 @@ def combineXRT(name):
 
     return
 
+def combineXRT_exp(name):
+    # find the x-ray files
+    files = glob('./data/{}/**/*xpc_ex.img.gz'.format(name), recursive=True)
+
+    if len(files) < 1:
+        return
+
+    # remove the old file if it is there
+    if os.path.isfile('./data/{}/{}_exp.fits'.format(name, name)):
+        os.remove('./data/{}/{}_exp.fits'.format(name, name))
+
+    # write xsel.in
+    with open('./data/{}/{}_ximg_exp.in'.format(name, name), 'w') as f:
+        for i, f_in in enumerate(files):
+            f_parts = f_in.split('/')
+            f.writelines('read {}\n'.format(f_in))
+            if i == 0:
+                continue
+            f.writelines('sum\n')
+            f.writelines('save\n')
+
+
+        f.writelines('write/fits {}/{}_exp.fits\n'.format('/'.join(
+                                                        f_parts[:3]), name))
+
+        f.writelines('exit\n')
+
+    # call ximage
+    os.system('ximage < ./data/{}/{}_ximg_exp.in'.format(name, name))
+
+    return
+
 def mk_contours(name):
 
     if not os.path.isfile('./data/{}/{}_events.fits'.format(name, name)):
@@ -102,6 +134,8 @@ def mk_contours2(name):
 
     if not os.path.isfile('./data/{}/{}_img_50-200_bl8.det'.format(name,
                                                                     name)):
+        print('No sources detected -- reverting to old contours')
+        mk_contours(name)
         return
 
     # start ds9
@@ -177,7 +211,10 @@ def put_contours(name):
 
     gc = aplpy.FITSFigure('./data/{}/{}_PS1stack_i.fits'.format(name, name))
     gc.show_rgb('./data/{}/{}irg.tiff'.format(name, name))
-    gc.show_regions('./data/{}/{}_contours.reg'.format(name, name))
+    try:
+        gc.show_regions('./data/{}/{}_contours.reg'.format(name, name))
+    except ValueError:
+        pass
     plt.tight_layout()
 
     # add exposure info
@@ -198,6 +235,31 @@ def put_contours2(name):
 
     if not os.path.isfile('./data/{}/{}_img_50-200_bl8.det'.format(name,
                                                                     name)):
+
+        print('No sources detected -- reverting to old contours')
+        cat = fits.getdata('./data/{}/{}xrt.fits'.format(name, name))
+
+        exp_time = cat['xrt_exposure'].sum()
+        text = 'exp time: {:.2}s'.format(exp_time)
+
+        gc = aplpy.FITSFigure('./data/{}/{}_img_50-200_bl8.fits'.format(name, name))
+        gc.show_grayscale()
+        try:
+            gc.show_regions('./data/{}/{}_contours.reg'.format(name, name))
+        except ValueError:
+            pass
+        plt.tight_layout()
+
+        # add exposure info
+        xo, yo = (80, 80)
+        plt.text(xo + 2, yo + 2, text, color='black', fontsize=18)
+        plt.text(xo, yo, text, color='white', fontsize=18)
+
+        gc.save('./data/{}/{}_XRT_contours.png'.format(name, name))
+
+        plt.close()
+
+
         return
 
     # figure out the contour levels
@@ -289,9 +351,12 @@ if __name__ == "__main__":
         print(name)
 
         name = name.replace(' ', '_')
+
+
         #combineXRT(name)
+        combineXRT_exp(name)
         #source_detec(name)
         #mk_contours(name)
         #mk_contours2(name)
-        put_contours(name)
+        #put_contours(name)
         #put_contours2(name)
