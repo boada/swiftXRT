@@ -50,20 +50,15 @@ def get_files(target):
 
 
 # get file data
-data = np.genfromtxt('./PSZcatalogs/PSZ2_unconfirmed_catalog - current.csv',
-           delimiter=',', names=True, dtype=None)
-
 data = pd.read_csv('./PSZ_unconfirmed.csv')
 
 for i, (ra, dec,
         name) in enumerate(zip(data['RA'], data['DEC'], data['NAME'])):
-    #print(data['Name'][i])
 
     print(name)
 
     name = name.replace(' ', '_')
 
-    #name = ''.join(e for e in name.decode() if e.isalnum())
     if not os.path.isdir('./data/{}'.format(name)):
         os.makedirs('./data/{}'.format(name))
 
