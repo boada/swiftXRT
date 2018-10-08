@@ -48,6 +48,12 @@ def combineXRT(name):
 
         f.writelines('set phaname PI\n')
         f.writelines('filter pha_cutoff 50 200\n')
+
+        # save non-binned image
+        f.writelines('extract image\n')
+        f.writelines('save image {}/{}_img_50-200.fits\n'.format('/'.join(
+                                                        f_parts[:3]), name))
+
         f.writelines('set xybinsize 8\n')
 
         f.writelines('extract image\n')
@@ -353,8 +359,8 @@ if __name__ == "__main__":
         name = name.replace(' ', '_')
 
 
-        #combineXRT(name)
-        combineXRT_exp(name)
+        combineXRT(name)
+        #combineXRT_exp(name)
         #source_detec(name)
         #mk_contours(name)
         #mk_contours2(name)
