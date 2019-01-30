@@ -1,3 +1,7 @@
+### JupyterNotebook ###
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -59,6 +63,6 @@ target/
 
 # ignore the data directory
 data/
-
+data_full/
 
 *.png
