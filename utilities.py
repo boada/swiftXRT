@@ -22,6 +22,7 @@ def parallel_process(array, function, n_jobs=None, use_kwargs=False, front_num=0
     #If we set n_jobs to 1, just run a list comprehension. This is useful for benchmarking and debugging.
     if n_jobs==1:
         out = [function(**a) if use_kwargs else function(a) for a in tqdm_notebook(array[front_num:])]
+        return
 #         if front_num:
 #             return front + out
 #         else:
