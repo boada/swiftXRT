@@ -246,7 +246,7 @@ def corner(xs,
     else:
         try:
             axes = np.array(fig.axes).reshape((K, K))
-        except:
+        except ValueError:
             raise ValueError("Provided figure has {0} axes, but data has "
                              "dimensions K={1}".format(len(fig.axes), K))
 
@@ -565,7 +565,7 @@ def hist2d(x,
     for i, v0 in enumerate(levels):
         try:
             V[i] = Hflat[sm <= v0][-1]
-        except:
+        except IndexError:
             V[i] = Hflat[0]
     V.sort()
     m = np.diff(V) == 0
