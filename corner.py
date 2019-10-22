@@ -387,7 +387,8 @@ def corner(xs,
 
             if truths is not None:
                 if truths[i] is not None and truths[j] is not None:
-                    ax.plot(truths[j], truths[i], "s", color=truth_color)
+                    pass
+                    #ax.plot(truths[j], truths[i], "s", color=truth_color)
                 if truths[j] is not None:
                     ax.axvline(truths[j], color=truth_color)
                 if truths[i] is not None:
