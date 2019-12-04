@@ -1,5 +1,10 @@
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from tqdm import tqdm
 from tqdm import tqdm_notebook
+import os
+import sys
+import subprocess
+import shlex
 
 
 def parallel_process(array,
@@ -38,7 +43,10 @@ def parallel_process(array,
             function(**a) if use_kwargs else function(a)
             for a in tqdm_notebook(array[front_num:])
         ]
-        return
+        if all(v is None for v in out):
+            return
+        else:
+            return out
 
     #Assemble the workers
     with ProcessPoolExecutor(max_workers=n_jobs) as pool:
@@ -54,17 +62,84 @@ def parallel_process(array,
             'leave': True
         }
         # Print out the progress as tasks complete
-        for f in tqdm_notebook(as_completed(futures), **kwargs):
-            pass
+        out = []
+        for f in tqdm_notebook(as_completed(futures),
+                               desc=f'{function.__name__}',
+                               **kwargs):
+            #         for f in tqdm(as_completed(futures),
+            #                       desc=f'{function.__name__}',
+            #                       **kwargs):
+            try:
+                out.append(f.result())
+            except Exception as e:
+                out.append(e)
 
-        # out = []
-        # # Get the results from the futures.
-        # for i, future in tqdm_notebook(enumerate(futures)):
-        #     try:
-        #         out.append(future.result())
-        #     except Exception as e:
-        #         out.append(e)
-        # if front_num:
-        #     return front + out
-        # else:
-        #     return out
+        if front_num:
+            if all(v is None for v in front + out):
+                return
+            else:
+                return front + out
+        elif all(v is None for v in out):
+            return
+        else:
+            return out
+
+
+def get_immediate_subdirectories(a_dir):
+    ''' Get a list of a directorys immediate subdirectories'''
+    return [
+        os.path.join(a_dir, name) for name in os.listdir(a_dir)
+        if os.path.isdir(os.path.join(a_dir, name))
+    ]
+
+
+def get_immediate_subfiles(a_dir):
+    ''' Get a list of all the FILES in a directory'''
+    return [
+        os.path.join(a_dir, name) for name in os.listdir(a_dir)
+        if os.path.isfile(os.path.join(a_dir, name))
+    ]
+
+
+def check_exe(exe, verb=False):
+    ''' Checks to make sure we have the appropriate system command available.
+    If we don't it raises an exception.
+
+    '''
+
+    path = os.environ['PATH'].split(':')
+    for p in path:
+        f = os.path.join(p, exe)
+        if os.path.isfile(f):
+            if verb:
+                print("# Found %s in %s" % (exe, f), file=sys.stderr)
+            return True
+    if verb:
+        # it wasn't found
+        print("# ERROR: Couldn't find %s" % exe, file=sys.stderr)
+    raise FileNotFoundError(exe)
+    return False
+
+
+def system_call(cmd, checkexe=False):
+    args = shlex.split(cmd)
+
+    if checkexe:
+        check_exe(args[0])
+
+    with subprocess.Popen(args,
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE,
+                          universal_newlines=True) as proc:
+
+        #proc.wait(timeout=60)
+        stdout, stderr = proc.communicate()
+
+    return stdout, stderr
+
+
+def set_env():
+    os.environ['PFILES'] = f"/tmp/{os.getpid()}.tmp/pfiles;$HEADAS/syspfiles"
+    pfiles = f'/tmp/{os.getpid()}.tmp/pfiles'
+    if not os.path.isdir(pfiles):
+        os.makedirs(pfiles)
