@@ -63,12 +63,12 @@ def parallel_process(array,
         }
         # Print out the progress as tasks complete
         out = []
-        for f in tqdm_notebook(as_completed(futures),
-                               desc=f'{function.__name__}',
-                               **kwargs):
-            #         for f in tqdm(as_completed(futures),
-            #                       desc=f'{function.__name__}',
-            #                       **kwargs):
+#        for f in tqdm_notebook(as_completed(futures),
+#                               desc=f'{function.__name__}',
+#                               **kwargs):
+        for f in tqdm(as_completed(futures),
+                                desc=f'{function.__name__}',
+                                **kwargs):
             try:
                 out.append(f.result())
             except Exception as e:
@@ -121,16 +121,20 @@ def check_exe(exe, verb=False):
     return False
 
 
-def system_call(cmd, checkexe=False):
-    args = shlex.split(cmd)
-
+def system_call(cmd, checkexe=False, shlexify=True):
+    if shlexify:
+        args = shlex.split(cmd)
+    else:
+        args = cmd
+        
     if checkexe:
         check_exe(args[0])
 
     with subprocess.Popen(args,
                           stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE,
-                          universal_newlines=True) as proc:
+                          universal_newlines=True,
+                          shell=True) as proc:
 
         #proc.wait(timeout=60)
         stdout, stderr = proc.communicate()
