@@ -150,12 +150,12 @@ outpath = './data_full'
 arr = [{
     'name': n.replace(' ', '_'),
     'outpath': outpath,
-    'overwrite': False
+    'overwrite': True
 } for n in data['NAME']]
 parallel_process(arr, run_pipeline, use_kwargs=True, n_jobs=6)
 
 # In[ ]:
 
-outpath = './data_full'
-name = 'PSZ2_G359.07-32.12'
-run_pipeline(name, outpath, True)
+#outpath = './data_full'
+#name = 'PSZ2_G359.07-32.12'
+#run_pipeline(name, outpath, True)
