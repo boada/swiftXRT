@@ -142,8 +142,59 @@ def system_call(cmd, checkexe=False, shlexify=True):
     return stdout, stderr
 
 
-def set_env():
-    os.environ['PFILES'] = f"/tmp/{os.getpid()}.tmp/pfiles;$HEADAS/syspfiles"
-    pfiles = f'/tmp/{os.getpid()}.tmp/pfiles'
-    if not os.path.isdir(pfiles):
-        os.makedirs(pfiles)
+def system_call_env(pipe_cmd, **kwargs):
+    ''' Calls a system command when the enviromental variables are important
+    
+    Really this is only used for the ftools, because running the tools in parallel
+    can be a problem. ftools tries to write the parameter files into my home directory
+    so when you are running a bunch of the tasks together, they can step on each other
+    when trying to read or write to those files. 
+    
+    This writes the parameter files to /tmp and then sets up a little script that 
+    makes sure ftools had all of the right enviromental variables to do what it needs to do.
+    
+    It does make some files and deletes those files when it's done. 
+    
+    Calls system_call above.
+    
+    '''
+    
+    
+    # set up enviroment
+    if not os.path.isdir(f'/tmp/{os.getpid()}.tmp/pfiles'):
+        os.makedirs(f'/tmp/{os.getpid()}.tmp/pfiles')
+    
+    env_cmd = f'export PFILES="/tmp/{os.getpid()}.tmp/pfiles;{os.environ["HEADAS"]}/syspfiles" \n'
+
+    fd, path = tempfile.mkstemp()
+    try:
+        with os.fdopen(fd, 'w') as tmp:
+            # do stuff with temp file
+            tmp.write(env_cmd)
+            tmp.write(pipe_cmd)
+
+        # call
+        cmd = f'sh {path}'
+        stdout, stderr = system_call(cmd, **kwargs)
+
+    finally:
+        os.remove(path)
+
+    return stdout, stderr
+        
+def compound_regions(region_list, img_size=1000):
+    
+    if not isinstance(region_list, list):
+        m = region_list.to_mask()
+        compound_region = m.to_image((img_size, img_size))
+    else:
+        for r in region_list:
+            # handle the first pass when we only have one part
+            try:
+                m = r.to_mask()
+                compound_region = compound_region + m.to_image((img_size, img_size))
+            except NameError:
+                m = r.to_mask()
+                compound_region = m.to_image((img_size, img_size))
+
+    return compound_region
