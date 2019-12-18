@@ -121,17 +121,26 @@ def check_exe(exe, verb=False):
 
 
 def system_call(cmd, checkexe=False, shlexify=True):
+    ''' Calls a system command and returns the output. 
+    Stderr is piped into stdout. 
+    
+    I'm never really sure when to use shlex to split the commands
+    so I've included a little switch incase the command that I try to use
+    doesn't work.
+    
+    '''
+    
     if shlexify:
         args = shlex.split(cmd)
     else:
         args = cmd
-        
+
     if checkexe:
         check_exe(args[0])
 
     with subprocess.Popen(args,
                           stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE,
+                          stderr=subprocess.STDOUT,
                           universal_newlines=True,
                           shell=True) as proc:
 
