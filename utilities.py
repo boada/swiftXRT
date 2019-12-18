@@ -1,9 +1,9 @@
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from tqdm import tqdm
-from tqdm import tqdm_notebook
+from tqdm.autonotebook import tqdm
 import os
 import sys
 import subprocess
+import tempfile
 import shlex
 
 
@@ -63,15 +63,14 @@ def parallel_process(array,
         }
         # Print out the progress as tasks complete
         out = []
-#        for f in tqdm_notebook(as_completed(futures),
-#                               desc=f'{function.__name__}',
-#                               **kwargs):
         for f in tqdm(as_completed(futures),
                                 desc=f'{function.__name__}',
                                 **kwargs):
             try:
-                out.append(f.result())
+                if f.result() is not None:
+                    out.append(f.result())
             except Exception as e:
+                print(f"{type(e).__name__}: {e.args[0]}")
                 out.append(e)
 
         if front_num:
