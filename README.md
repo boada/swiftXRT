@@ -80,7 +80,7 @@ It should be noted, getting all of the imaging is a non-trivial task.
 
 ## Authors
 
-* **Billie Thompson** - Rutgers University
+* **Steven Boada** - Rutgers University
 
 ## License
 
