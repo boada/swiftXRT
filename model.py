@@ -13,17 +13,43 @@ def beta_model(So, r, rc, beta):
     
     return So * ( 1.0 + (r / rc)**2)**(-3.0 * beta + 0.5)
 
-def integ_beta_model(r, rc, beta):
+def integ_beta_model(r, rc, beta, r_start=0):
     ''' 2pi*r integral of the above Beta model with 3 parameters. 
-    r -- r
+    r -- r to integrate to
     rc -- core radius
     beta -- powerlaw slope
-
+    r_start -- starting point for integration
+    
+    This equation comes from Moretti et al. 2005. Their eq. 2.
+    
+    It's been updated with our beta.
+    
     '''
 
     rc2 = rc * rc
     
-    return np.pi * rc2 / (1 - beta) * ((1 + r**2 / rc2)**(1 - beta) - 1)
+    beta = -3.0 * beta + 0.5
+    
+    area1 = np.pi * rc2 / (1 - beta) * ((1 + r_start**2 / rc2)**(1 - beta) - 1)
+    area2 = np.pi * rc2 / (1 - beta) * ((1 + r**2 / rc2)**(1 - beta) - 1)
+    
+    return area2 - area1
+
+def inv_beta_model(So, rc, beta, bkg):
+    ''' Solves for where (radius) the beta model is equal to the background
+
+    Make sure you keep track of the units going into all this. You wanna make 
+    sure the radius comes out as something that makes sense.
+
+    '''
+
+    a = -3 * beta + 0.5
+
+    b = (bkg / So)**(1 / a) - 1
+
+    c = b * rc**2
+
+    return np.sqrt(c)
 
 def chi2(model, y, y_err):
     '''Chi error. We are going to square this to make it the chi2 error.'''
