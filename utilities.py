@@ -5,7 +5,11 @@ import sys
 import subprocess
 import tempfile
 import shlex
-
+from functools import reduce
+import pandas as pd
+from numpy import nan
+sys.path.append(f'{os.environ["HOME"]}/Projects/planckClusters/catalogs')
+from load_catalogs import load_extraCatalogs
 
 def parallel_process(array,
                      function,
@@ -206,3 +210,34 @@ def compound_regions(region_list, img_size=1000):
                 compound_region = m.to_image((img_size, img_size))
 
     return compound_region
+
+def redshifts_from_papers(catalog=None):
+    data_barrena = load_extraCatalogs('barrena2018', merge=True)
+    data_aguado = load_extraCatalogs('aguado-barahona2019', merge=True)
+    data_streb = load_extraCatalogs('streblyanska2019', merge=True)
+    data_zohren = load_extraCatalogs('zohren2019', merge=True) 
+    
+    data_frames = [data_barrena[['NAME', 'REDSHIFT', 'z_cl']], 
+               data_aguado[['NAME', 'z_cl']], 
+               data_streb[['NAME', 'z_spec']], 
+               data_zohren[['NAME', 'z_spec']]]
+    
+    df_merged = reduce(lambda left, right: pd.merge(left, right, on=['NAME'], how='outer'), data_frames).fillna(nan)
+    
+    df_merged.rename(columns={'z_cl_x': 'z_barrena', 
+                          'z_cl_y': 'z_aguado',
+                          'z_spec_x': 'z_streb',
+                          'z_spec_y': 'z_zohren'}, inplace=True)
+    
+    df_merged['REDSHIFT'].fillna(df_merged['z_barrena'], inplace=True)
+    df_merged['REDSHIFT'].fillna(df_merged['z_aguado'], inplace=True)
+    df_merged['REDSHIFT'].fillna(df_merged['z_streb'], inplace=True)
+    df_merged['REDSHIFT'].fillna(df_merged['z_zohren'], inplace=True)
+  
+    df_merged['REDSHIFT'].replace(-1, nan, inplace=True)
+
+    if catalog is not None:
+        catalog['REDSHIFT'] = df_merged['REDSHIFT']
+        return catalog    
+    else:
+        return df_merged
