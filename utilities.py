@@ -45,7 +45,7 @@ def parallel_process(array,
     if n_jobs == 1:
         out = [
             function(**a) if use_kwargs else function(a)
-            for a in tqdm_notebook(array[front_num:])
+            for a in tqdm(array[front_num:], desc=f'{function.__name__}')
         ]
         if all(v is None for v in out):
             return
