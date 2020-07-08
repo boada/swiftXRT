@@ -64,7 +64,8 @@ target/
 # ignore the data directory
 data/
 data_full/
+data_full_new/
 
+# other stuff
 *.png
-
 legacy/
