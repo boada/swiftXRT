@@ -1,0 +1,1 @@
+This folder contains data not unique to this project (aka, I didn't make it). I'm sure a description of the external data used will be availabe in the paper. 
