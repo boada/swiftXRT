@@ -6,7 +6,7 @@ This is all of the source code for the papers associated with the *Swift* Survey
 
 ### Python Requirements
 
-This work relies on several third party Python modules which are *not* included with this repo.
+This work relies on several third party Python modules which are *not* included with this repo. These are also listed in the `requirements.txt` file.
 
 * Astropy
 * Astropy-regions
@@ -44,6 +44,12 @@ To get the third part Python modules
 ```
 pip install -U astropy regions numpy scipy matplotlib tqdm emcee aplpy
 ```
+or
+
+```
+pip install -r requirements.txt
+```
+
 should do it for you.
 
 To setup non-python x-ray specific tooling, see the individual websites to get those tools up and running. The pipelines will often check to make sure the executables are available in your path, but they won't coach you on how to install that specific tool.
@@ -66,6 +72,7 @@ Additionally, it requires a bunch of imaging data. It's not specifically require
 It should be noted, getting all of the imaging is a non-trivial task.   
 
 ## Notebook overview
+#### A very brief overview
 
 1. `01. Download XRT data` Downloads all of the XRT imaging for the target list loaded by `load_catalogs`
 2. `02. Rereduce all SWIFT data` Reprocesses the downloaded data to make it more useful for analyses.
@@ -74,9 +81,10 @@ It should be noted, getting all of the imaging is a non-trivial task.
 5. `04. Detect and Clean Sources` Source detection and false detection cleaning.
 6. `05. Create and Fit Radial Profiles` Creates radial profiles and fits beta-models to each source
 7. `06. Classify Sources` Classifies sources as point sources or extended sources
-8. `07. Link PS1 and SDSS Imaging` Links the imaging into the data directories as a setup for the next notebook
+8. `07. Link Imaging` Links the imaging into the data directories as a setup for the next notebook
 9. `08. Make Images` Makes images, both XRT and Optical
-10. `09. Extract Spectra` Extras spectra (and process through xspec) for each source
+10. `09. Extract Spectra` Extracts spectra (and process through xspec) for each source
+11. `10. Correct Fluxes` Corrects the measured fluxes (and luminosities) for the flux below the background
 
 ## Authors
 
