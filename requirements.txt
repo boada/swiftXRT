@@ -1,0 +1,8 @@
+Astropy
+regions
+Numpy
+Scipy
+Matplotlib
+tqdm
+emcee
+AplPy
